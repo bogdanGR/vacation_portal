@@ -26,5 +26,4 @@ $router->get('/employee', [EmployeeController::class, 'home']);
 $router->get('/manager/users/new',  [ManagerController::class, 'usersNew']);
 $router->post('/manager/users',     [ManagerController::class, 'usersStore']);
 
-
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
