@@ -1,0 +1,16 @@
+{
+  "name": "bogdan/vacation-portal",
+  "type": "project",
+  "require": {
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "scripts": {
+    "start": "php -S 127.0.0.1:8000 -t public",
+    "seed:users": "php scripts/seed_users.php"
+  }
+}
