@@ -36,6 +36,12 @@ class User
     private ?string $updated_at = null;
 
     /**
+     * keep manager id of the employee
+     * @var int|null
+     */
+    private ?int $manager_id = null;
+
+    /**
      * Optional bulk construction.
      * @param array<string,mixed> $data
      */
@@ -57,6 +63,10 @@ class User
      */
     public function setUser(array $data): void
     {
+        if (array_key_exists('id', $data)) {
+            $this->setId($data['id']);
+        }
+
         if (array_key_exists('username', $data)) {
             $this->setUsername((string)$data['username']);
         }
@@ -81,6 +91,12 @@ class User
         }
         if (array_key_exists('updated_at', $data))    {
             $this->setUpdatedAt((string)$data['updated_at']);
+        }
+
+        if (array_key_exists('manager_id', $data))  {
+            $this->setManagerId(
+                $data['manager_id'] !== '' ? (int)$data['manager_id'] : null
+            );
         }
     }
 
@@ -160,9 +176,10 @@ class User
         if ($this->id) {
             // update
             $stmt = $db->prepare("
-                UPDATE users SET username=?, name=?, email=?, employee_code=?, role=?, password=?, updated_at=NOW()
+                UPDATE users SET username=?, name=?, email=?, employee_code=?, role=?, password=?, manager_id=?,updated_at=NOW()
                 WHERE id=?
             ");
+
             return $stmt->execute([
                 $this->username,
                 $this->name,
@@ -170,13 +187,14 @@ class User
                 $this->employee_code,
                 $this->role,
                 $this->passwordHash,
+                $this->manager_id,
                 $this->id
             ]);
         } else {
             // insert
             $stmt = $db->prepare("
-                INSERT INTO users (username,name,email,employee_code,role,password,created_at,updated_at)
-                VALUES (?,?,?,?,?,?,NOW(),NOW())
+                INSERT INTO users (username,name,email,employee_code,role,password,manager_id,created_at,updated_at)
+                VALUES (?,?,?,?,?,?,?,NOW(),NOW())
             ");
             $ok = $stmt->execute([
                 $this->username,
@@ -184,7 +202,8 @@ class User
                 $this->email,
                 $this->employee_code,
                 $this->role,
-                $this->passwordHash
+                $this->passwordHash,
+                $this->manager_id
             ]);
             if ($ok) {
                 $this->id = (int)$db->lastInsertId();
@@ -274,6 +293,14 @@ class User
         return date_format(date_create($this->updated_at),"d/m/Y");
     }
 
+    /**
+     * Get manager id
+     * @return int|null
+     */
+    public function getManagerId(): ?int
+    {
+        return $this->manager_id;
+    }
     // -------------------- SETTERS --------------------
 
     /** @param int|null $id */
@@ -338,5 +365,15 @@ class User
     public function setUpdatedAt(?string $updatedAt): void
     {
         $this->updated_at = $updatedAt;
+    }
+
+    /**
+     * Set manager_id in order to keep manager of employee
+     * @param int|null $managerId
+     * @return void
+     */
+    public function setManagerId(?int $managerId): void
+    {
+        $this->manager_id = $managerId;
     }
 }

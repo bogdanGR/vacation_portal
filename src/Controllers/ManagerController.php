@@ -37,7 +37,7 @@ class ManagerController extends BaseController
 
         $errors = [];
 
-        if ($name === '')               {
+        if ($name === '') {
             $errors['name'] = 'Name is required';
         }
         if ($username === '')           {
@@ -80,12 +80,24 @@ class ManagerController extends BaseController
             return;
         }
 
-        $user = new User($_POST);
+        $currentManagerId = $this->user()['id'];
+
+        $data = $_POST;
+        if (($data['role'] ?? 'employee') === 'employee') {
+            $data['manager_id'] = $currentManagerId;
+        } else {
+            $data['manager_id'] = null;
+        }
+
+        $user = new User($data);
 
         if ($user->save()) {
             $this->redirect('/manager');
         } else {
-            var_dump('something went wrong');die();
+            $this->render('manager/users_new', [
+                'errors' => ['general' => 'Failed to save user. Please try again.'],
+                'old'    => $_POST
+            ]);
         }
     }
 }

@@ -26,6 +26,7 @@ class UserRepository
             'role' => $row['role'],
             'created_at' => $row['created_at'] ?? null,
             'updated_at' => $row['updated_at'] ?? null,
+            'manager_id' => $row['manager_id'] ?? null,
         ]);
 
         $user->_setPasswordHash((string)$row['password']);
