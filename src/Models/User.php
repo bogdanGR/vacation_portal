@@ -29,7 +29,7 @@ class User
     private string $role = 'employee';
 
     /** @var string Password hash (never store plain text) */
-    private string $password = '';
+    private string $passwordHash = '';
 
     /** @var string|null Timestamps (read-only from DB) */
     private ?string $created_at = null;
@@ -72,10 +72,8 @@ class User
         if (array_key_exists('role', $data))            {
             $this->setRole((string)$data['role']);
         }
-        if (!empty($data['password_plain'])) {
-            $this->setPasswordPlain((string)$data['password_plain']);
-        } elseif (!empty($data['password'])) {
-            $this->setPasswordHashed((string)$data['password']);
+        if (!empty($data['password'])) {
+            $this->setPasswordPlain((string)$data['password']);
         }
     }
 
@@ -86,7 +84,7 @@ class User
      */
     public function setPasswordPlain(string $plain): void
     {
-        $this->password = password_hash($plain, PASSWORD_DEFAULT);
+        $this->passwordHash = password_hash($plain, PASSWORD_DEFAULT);
     }
 
     /**
@@ -96,7 +94,7 @@ class User
      */
     public function setPasswordHashed(string $hash): void
     {
-        $this->password = $hash;
+        $this->passwordHash = $hash;
     }
 
     /**
@@ -164,7 +162,7 @@ class User
                 $this->email,
                 $this->employee_code,
                 $this->role,
-                $this->password,
+                $this->passwordHash,
                 $this->id
             ]);
         } else {
@@ -179,7 +177,7 @@ class User
                 $this->email,
                 $this->employee_code,
                 $this->role,
-                $this->password
+                $this->passwordHash
             ]);
             if ($ok) {
                 $this->id = (int)$db->lastInsertId();
