@@ -9,23 +9,17 @@
             <table class="table table-striped align-middle m-0">
                 <thead class="table-light">
                 <tr>
-                    <th>Username</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Employee Code</th>
-                    <th>Role</th>
-                    <th>Created</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($users as $user): ?>
                     <tr>
-                        <td><?= htmlspecialchars($user->getUsername()) ?></td>
                         <td><?= htmlspecialchars($user->getName()) ?></td>
                         <td><?= htmlspecialchars($user->getEmail()) ?></td>
-                        <td><?= htmlspecialchars($user->getEmployeeCode()) ?></td>
-                        <td><?= htmlspecialchars($user->getRole()) ?></td>
-                        <td><?= htmlspecialchars($user->getCreatedAt()) ?></td>
+                        <td>Actions</td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
