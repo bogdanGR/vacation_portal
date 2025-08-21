@@ -73,6 +73,20 @@ class UserRepository
     }
 
     /**
+     * Returns all employees
+     * @return array
+     */
+    public static function allEmployees(): array
+    {
+        $rows = Bootstrap::$db
+            ->query("SELECT * FROM users WHERE role = 'employee' ORDER BY id DESC")
+            ->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_map([self::class, 'mapRow'], $rows);
+    }
+
+
+    /**
      * Check if user exists by username
      * To find if username is unique
      * @param string $username

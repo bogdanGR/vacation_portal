@@ -14,7 +14,7 @@ class ManagerController extends BaseController
     public function home(): void
     {
         $this->requireManager();
-        $users = UserRepository::all();
+        $users = UserRepository::allEmployees();
         $this->render('manager/index', ['users' => $users]);
     }
 
