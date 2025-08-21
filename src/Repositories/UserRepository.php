@@ -18,15 +18,16 @@ class UserRepository
     private static function mapRow(array $row): User
     {
         $user = new User([
-            'id'            => (int)$row['id'],
-            'username'      => $row['username'],
-            'name'          => $row['name'],
-            'email'         => $row['email'],
+            'id' => (int)$row['id'],
+            'username' => $row['username'],
+            'name' => $row['name'],
+            'email'  => $row['email'],
             'employee_code' => $row['employee_code'],
-            'role'          => $row['role'],
-            'created_at'    => $row['created_at'] ?? null,
-            'updated_at'    => $row['updated_at'] ?? null,
+            'role' => $row['role'],
+            'created_at' => $row['created_at'] ?? null,
+            'updated_at' => $row['updated_at'] ?? null,
         ]);
+
         $user->_setPasswordHash((string)$row['password']);
         return $user;
     }

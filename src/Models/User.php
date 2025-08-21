@@ -75,6 +75,13 @@ class User
         if (!empty($data['password'])) {
             $this->setPasswordPlain((string)$data['password']);
         }
+
+        if (array_key_exists('created_at', $data))    {
+            $this->setCreatedAt((string)$data['created_at']);
+        }
+        if (array_key_exists('updated_at', $data))    {
+            $this->setUpdatedAt((string)$data['updated_at']);
+        }
     }
 
     /**
@@ -249,15 +256,22 @@ class User
         return $this->role;
     }
 
-    /** @return string|null */
-    public function getCreatedAt(): ?string {
-        return $this->created_at;
+    /**
+     * Return formatted created_at
+     * @return string|null
+     */
+    public function getCreatedAt(): ?string
+    {
+        return date_format(date_create($this->created_at),"d/m/Y");
     }
 
-    /** @return string|null */
+    /**
+     * Return formatted updated_at
+     * @return string|null
+     */
     public function getUpdatedAt(): ?string
     {
-        return $this->updated_at;
+        return date_format(date_create($this->updated_at),"d/m/Y");
     }
 
     // -------------------- SETTERS --------------------
@@ -302,5 +316,27 @@ class User
             throw new \InvalidArgumentException('Role must be employee or manager');
         }
         $this->role = $role;
+    }
+
+    /**
+     * Set the created_at timestamp (normally set from DB only).
+     *
+     * @param string|null $createdAt
+     * @return void
+     */
+    public function setCreatedAt(?string $createdAt): void
+    {
+        $this->created_at = $createdAt;
+    }
+
+    /**
+     * Set the updated_at timestamp (normally set from DB only).
+     *
+     * @param string|null $updatedAt
+     * @return void
+     */
+    public function setUpdatedAt(?string $updatedAt): void
+    {
+        $this->updated_at = $updatedAt;
     }
 }
