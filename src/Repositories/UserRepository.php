@@ -131,4 +131,21 @@ class UserRepository
         $s->execute($excludeId ? [$code, $excludeId] : [$code]);
         return (bool)$s->fetchColumn();
     }
+
+    /**
+     * Generate next employee code in sequence.
+     *
+     * Format: 7-digit zero-padded string (e.g. 0000001, 0000002).
+     *
+     * @return string
+     */
+    public static function generateNextEmployeeCode(): string
+    {
+        $stmt = \App\Core\Bootstrap::$db->query("SELECT MAX(employee_code) FROM users WHERE role='employee'");
+        $lastCode = $stmt->fetchColumn();
+
+        $nextNumber = $lastCode ? (int)$lastCode + 1 : 1;
+
+        return str_pad((string)$nextNumber, 7, '0', STR_PAD_LEFT);
+    }
 }

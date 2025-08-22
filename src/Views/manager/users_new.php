@@ -40,7 +40,7 @@
 
         <div>
             <label class="form-label">Employee Code (7 digits, employees only)</label>
-            <input type="text" name="employee_code" class="form-control" value="<?= htmlspecialchars($old['employee_code'] ?? '') ?>" pattern="\d{7}" placeholder="e.g. 1000002">
+            <input type="text" name="employee_code" class="form-control" value="<?= htmlspecialchars($old['employee_code'] ?? ($prefill_employee_code ?? '')) ?>" placeholder="e.g. 1000002">
         </div>
 
         <div>

@@ -49,7 +49,9 @@ class ManagerController extends BaseController
     public function usersNew(): void
     {
         $this->requireManager();
-        $this->render('manager/users_new');
+        $this->render('manager/users_new', [
+            'prefill_employee_code' => UserRepository::generateNextEmployeeCode()
+        ]);
     }
 
     /**
