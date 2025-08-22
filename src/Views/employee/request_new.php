@@ -1,4 +1,7 @@
-<h1 class="h4 mb-3">New Vacation Request</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 m-0">New Vacation Request</h1>
+    <a href="/employee" class="btn btn-outline-secondary">← Back to Dashboard</a>
+</div>
 
 <?php if (!empty($errors['general'])): ?>
     <div class="alert alert-danger"><?= htmlspecialchars($errors['general']) ?></div>
