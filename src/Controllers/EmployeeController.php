@@ -18,7 +18,7 @@ class EmployeeController extends BaseController
             $requests = VacationRequestRepository::findByEmployee($user['id']);
         }
 
-        $this->render('employee/index', ['user' => $user, 'requests' => $requests]);
+        $this->render('employee/index', ['requests' => $requests]);
     }
 
     /**

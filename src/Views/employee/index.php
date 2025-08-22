@@ -1,5 +1,3 @@
-<h1 class="h4 mb-3">Welcome, <?= htmlspecialchars($user['name']) ?></h1>
-
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 m-0">My Vacation Requests</h1>
     <a class="btn btn-dark" href="/employee/requests/new">+ New Request</a>
