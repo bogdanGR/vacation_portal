@@ -19,7 +19,7 @@ class Router
      *
      * @var array<string, array<string, array{0:string,1:string}>>
      */
-    private array $routes = [];
+    private array $routes = ['GET'=>[], 'POST'=>[]];
 
     /**
      * Register a GET route.
@@ -29,7 +29,7 @@ class Router
      */
     public function get(string $path, array $handler): void
     {
-        $this->routes['GET'][$path] = $handler;
+        $this->add('GET',  $path, $handler);
     }
 
     /**
@@ -40,7 +40,26 @@ class Router
      */
     public function post(string $path, array $handler): void
     {
-        $this->routes['POST'][$path] = $handler;
+        $this->add('POST', $path, $handler);
+    }
+
+    /**
+     * Register a route pattern and its handler.
+     *
+     * Converts paths with {placeholders} into regex patterns with named groups.
+     * Example:
+     *   "/users/{id}/edit"
+     *   → "#^/users/(?P<id>[^/]+)/edit$#"
+     *
+     * @param string $method  HTTP method ("GET" or "POST")
+     * @param string $path    Route path with optional {param} placeholders
+     * @param array{0:string,1:string} $handler [ControllerClass::class, 'methodName']
+     */
+    private function add(string $method, string $path, array $handler): void
+    {
+        // Convert "/users/{id}/edit" -> "#^/users/(?P<id>[^/]+)/edit$#"
+        $pattern = preg_replace('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', '(?P<$1>[^/]+)', $path);
+        $this->routes[$method]["#^{$pattern}$#"] = $handler;
     }
 
     /**
@@ -51,21 +70,43 @@ class Router
      */
     public function dispatch(string $method, string $uri): void
     {
-        // Strip query string and normalize path
-        $path = strtok($uri, '?') ?: '/';
+        // Strip query string (everything after ?)
+        $path = explode('?', $uri, 2)[0] ?: '/';
 
-        // Find matching handler
-        $handler = $this->routes[$method][$path] ?? null;
+        // Loop over all registered routes for this HTTP method
+        foreach ($this->routes[$method] ?? [] as $routePattern => $handler) {
 
-        if (!$handler) {
-            http_response_code(404);
-            echo "Not Found";
-            return;
+            // If request path matches the route regex
+            if (preg_match($routePattern, $path, $matches)) {
+
+                // Keep only named parameters (ignore numeric indexes from preg_match)
+                $params = array_filter(
+                    $matches,
+                    fn($key) => !is_int($key),
+                    ARRAY_FILTER_USE_KEY
+                );
+
+                // Handler = [ControllerClass, methodName]
+                [$controllerClass, $controllerMethod] = $handler;
+                $controller = new $controllerClass();
+
+                // Reflection: check if controller method expects arguments
+                $ref = new \ReflectionMethod($controllerClass, $controllerMethod);
+
+                if ($ref->getNumberOfParameters() > 0) {
+                    // Pass the params array (e.g., ['id' => '5'])
+                    $controller->$controllerMethod($params);
+                } else {
+                    // Call method with no params
+                    $controller->$controllerMethod();
+                }
+                return;
+            }
         }
 
-        // Instantiate the controller and call the method
-        [$class, $methodName] = $handler;
-        $controller = new $class();
-        $controller->$methodName();
+        // If no route matched, 404
+        http_response_code(404);
+        echo 'Not Found';
     }
+
 }

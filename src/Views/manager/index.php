@@ -19,7 +19,21 @@
                     <tr>
                         <td><?= htmlspecialchars($user->getName()) ?></td>
                         <td><?= htmlspecialchars($user->getEmail()) ?></td>
-                        <td>Actions</td>
+                        <td class="text-nowrap">
+                            <a href="/manager/users/<?= (int)$user->getId(); ?>/edit" class="btn btn-sm btn-primary">
+                                Edit
+                            </a>
+
+                            <form method="post"
+                                  action="/manager/users/<?= (int)$user->getId(); ?>/delete"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Delete user <?= htmlspecialchars($user->getEmail()) ?>? This cannot be undone.');">
+                                <button class="btn btn-sm btn-outline-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

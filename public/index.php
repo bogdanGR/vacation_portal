@@ -26,4 +26,9 @@ $router->get('/employee', [EmployeeController::class, 'home']);
 $router->get('/manager/users/new',  [ManagerController::class, 'usersNew']);
 $router->post('/manager/users',     [ManagerController::class, 'usersStore']);
 
+/** Manager edit, update and delete user */
+$router->get('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']);
+$router->post('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']);
+$router->post('/manager/users/{id}/delete', [ManagerController::class, 'usersDelete']);
+
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

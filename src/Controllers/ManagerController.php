@@ -100,4 +100,127 @@ class ManagerController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Show the user edit form (GET) or handle user update (POST).
+     *
+     * Routes:
+     *  - GET  /manager/users/{id}/edit  → Show edit form
+     *  - POST /manager/users/{id}/edit  → Update user data
+     *
+     * Behavior:
+     *  - Ensures the current user is a manager.
+     *  - Loads the target user by ID.
+     *  - On GET: renders the edit form with current user data.
+     *  - On POST: validates inputs (name, email, optional password),
+     *    updates the user record, and redirects to manager dashboard
+     *    if successful, otherwise redisplays the form with errors.
+     *
+     * @param array{id:int|string} $params Named route parameters (expects 'id').
+     *
+     * @return void
+     */
+    public function usersEdit(array $params): void
+    {
+        $this->requireManager();
+
+        $id = (int)$params['id'];
+
+        $user = UserRepository::findById($id);
+
+        if (!$user) {
+            http_response_code(404);
+            echo "User not found";
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $password = trim($_POST['password'] ?? '');
+
+            $errors = [];
+
+            if ($name === '') {
+                $errors['name'] = 'Name is required';
+            }
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = 'Valid email required';
+            }
+
+            if ($errors) {
+                $this->render('manager/users_edit', [
+                    'user' => $user,
+                    'errors' => $errors,
+                    'old' => compact('name','email')
+                ]);
+                return;
+            }
+
+            $user->setName($name);
+            $user->setEmail($email);
+            if ($password !== '') {
+                $user->setPasswordPlain($password);
+            }
+
+            if ($user->save()) {
+                $this->redirect('/manager');
+            } else {
+                $this->render('manager/users_edit', [
+                    'user' => $user,
+                    'errors' => ['general' => 'Failed to update user. Please try again.'],
+                    'old' => compact('name','email')
+                ]);
+            }
+        } else {
+            $this->render('manager/users_edit', [
+                'user' => $user,
+                'errors' => [],
+                'old' => []
+            ]);
+        }
+    }
+
+    /**
+     * Delete a user by ID.
+     *
+     * Route:
+     *  - POST /manager/users/{id}/delete
+     *
+     * Behavior:
+     *  - Ensures the current user is a manager.
+     *  - Loads the target user by ID.
+     *  - If the user exists, deletes it from the database.
+     *  - Redirects back to the manager dashboard with success or error.
+     *
+     * @param array{id:int|string} $params Named route parameters (expects 'id').
+     *
+     * @return void
+     */
+    public function usersDelete(array $params): void
+    {
+        $this->requireManager();
+
+        $userId = (int)$params['id'];
+
+        $user = UserRepository::findById($userId);
+
+        if (!$user) {
+            $this->render('manager/index', [
+                'errors' => ['general' => 'User not found'],
+                'users'  => UserRepository::allEmployees()
+            ]);
+            return;
+        }
+
+        if ($user->delete()) {
+            $this->redirect('/manager');
+        } else {
+            $this->render('manager/index', [
+                'errors' => ['general' => 'Failed to delete user'],
+                'users'  => UserRepository::allEmployees()
+            ]);
+        }
+    }
+
 }
