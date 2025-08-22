@@ -31,14 +31,16 @@ $router->get('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']
 $router->post('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']);
 $router->post('/manager/users/{id}/delete', [ManagerController::class, 'usersDelete']);
 
+/** Requests new/store/delete and edit*/
 $router->get('/employee/requests/new', [EmployeeController::class, 'createRequest']);
 $router->post('/employee/requests/store', [EmployeeController::class, 'storeRequest']);
 $router->post('/employee/requests/{id}/delete', [EmployeeController::class, 'deleteRequest']);
+$router->get('/employee/requests/{id}/edit',  [App\Controllers\EmployeeController::class, 'editRequest']);
+$router->post('/employee/requests/{id}/edit', [App\Controllers\EmployeeController::class, 'editRequest']);
 
-// Manager: view/act on requests
+/** managers request index, approve/reject requests */
 $router->get('/manager/requests', [ManagerController::class, 'requestsIndex']);
 $router->post('/manager/requests/{id}/approve', [ManagerController::class, 'requestsApprove']);
 $router->post('/manager/requests/{id}/reject', [ManagerController::class, 'requestsReject']);
-
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

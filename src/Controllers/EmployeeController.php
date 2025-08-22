@@ -26,7 +26,7 @@ class EmployeeController extends BaseController
      */
     public function createRequest(): void
     {
-        $this->render('employee/request_new');
+        $this->render('employee/vacation_request/new');
     }
 
     /**
@@ -39,38 +39,128 @@ class EmployeeController extends BaseController
         $managerId  = $employee['manager_id'];
 
         $start = $_POST['start_date'] ?? '';
-        $end   = $_POST['end_date'] ?? '';
+        $end = $_POST['end_date'] ?? '';
         $reason = trim($_POST['reason'] ?? '');
 
         $errors = [];
-        if (!$start || !$end) {
-            $errors['dates'] = 'Start and end dates are required';
-        } elseif ($end < $start) {
-            $errors['dates'] = 'End date cannot be earlier than start date';
+        if (!$start) {
+            $errors['start_date'] = 'Start date is required';
+        }
+        if (!$end) {
+            $errors['end_date'] = 'End date is required';
+        }
+        if(!$reason) {
+            $errors['reason'] = 'Reason is required';
+        }
+        if ($start && $end && $end < $start) {
+            $errors['end_date'] = 'End date cannot be earlier than start date';
+        }
+        if ($start && $end && VacationRequestRepository::overlaps($employeeId, $start, $end)) {
+            $errors['start_date'] = 'Your vacation request overlaps with an existing one.';
         }
 
         if ($errors) {
-            $this->render('employee/request_new', [
+            $this->render('employee/vacation_request/new', [
                 'errors' => $errors,
-                'old' => compact('start','end','reason')
+                'old' => [
+                    'start_date' => $start,
+                    'end_date'   => $end,
+                    'reason'     => $reason,
+                ],
             ]);
             return;
         }
 
         $request = new VacationRequest([
             'employee_id' => $employeeId,
-            'manager_id'  => $managerId,
-            'start_date'  => $start,
-            'end_date'    => $end,
-            'reason'      => $reason,
+            'manager_id' => $managerId,
+            'start_date' => $start,
+            'end_date' => $end,
+            'reason' => $reason,
         ]);
 
         if ($request->save()) {
             $this->redirect('/employee');
         } else {
-            $this->render('employee/request_new', [
+            $this->render('employee/vacation_request/new', [
                 'errors' => ['general' => 'Something went wrong'],
                 'old' => compact('start','end','reason')
+            ]);
+        }
+    }
+
+    /**
+     * Handles show edit form and store vacation request
+     * @param array $params
+     * @return void
+     */
+    public function editRequest(array $params): void
+    {
+        $employeeId = (int)$this->user()['id'];
+        $id = (int)$params['id'];
+
+        $vacationRequest = VacationRequestRepository::findOneOwned($id, $employeeId);
+
+        if (!$vacationRequest) {
+            http_response_code(404);
+            echo "Request not found";
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $this->render('employee/vacation_request/edit', ['request' => $vacationRequest, 'errors' => [], 'old' => []]);
+            return;
+        }
+
+        $start = (string)($_POST['start_date'] ?? '');
+        $end = (string)($_POST['end_date'] ?? '');
+        $reason = trim((string)($_POST['reason'] ?? ''));
+
+        $errors = [];
+        if (!$start) {
+            $errors['start_date'] = 'Start date is required';
+        }
+        if (!$end) {
+            $errors['end_date'] = 'End date is required';
+        }
+        if(!$reason) {
+            $errors['reason'] = 'Reason is required';
+        }
+        if ($start && $end && $end < $start) {
+            $errors['end_date'] = 'End date cannot be earlier than start date';
+        }
+        if ($start && $end && VacationRequestRepository::overlaps($employeeId, $start, $end)) {
+            $errors['start_date'] = 'Your vacation request overlaps with an existing one.';
+        }
+
+
+        if ($errors) {
+            $this->render('employee/vacation_request/edit', [
+                'request' => $vacationRequest,
+                'errors' => $errors,
+                'old' => [
+                    'start' => $start,
+                    'end' => $end,
+                    'reason' => $reason],
+                ]);
+            return;
+        }
+
+        $vacationRequest->setStartDate($start);
+        $vacationRequest->setEndDate($end);
+        $vacationRequest->setReason($reason);
+
+        if ($vacationRequest->save()) {
+            $this->redirect('/employee');
+        } else {
+            $this->render('employee/vacation_request/edit', [
+                'request' => $vacationRequest,
+                'errors' => ['general' => 'Unable to update request.'],
+                'old' => [
+                    'start_date' => $start,
+                    'end_date' => $end,
+                    'reason' => $reason,
+                ],
             ]);
         }
     }

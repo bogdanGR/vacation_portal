@@ -9,9 +9,9 @@ class VacationRequest
     private ?int $id = null;
     private int $employee_id;
     private int $manager_id;
-    private string $start_date;
-    private string $end_date;
-    private ?string $reason = null;
+    private ?string $start_date = null;
+    private ?string $end_date   = null;
+    private ?string $reason     = null;
     private string $status = 'pending'; // default
     private ?string $submitted_at = null;
     private ?string $processed_at = null;
@@ -70,26 +70,43 @@ class VacationRequest
     {
         $db = Bootstrap::$db;
 
-        $stmt = $db->prepare("
+        if ($this->id) {
+            $stmt = $db->prepare("
+                UPDATE vacation_requests
+                SET start_date=?, end_date=?, reason=?
+                WHERE id=? AND employee_id=? AND status='pending'
+            ");
+
+            $ok = $stmt->execute([
+                $this->start_date,
+                $this->end_date,
+                $this->reason,
+                $this->id,
+                $this->employee_id,
+            ]);
+
+            return $ok && $stmt->rowCount() > 0;
+        } else {
+            $stmt = $db->prepare("
             INSERT INTO vacation_requests
-            (employee_id, manager_id, start_date, end_date, reason, status, submitted_at)
-            VALUES (?, ?, ?, ?, ?, ?, NOW())
-        ");
+                (employee_id, manager_id, start_date, end_date, reason, status, submitted_at)
+                VALUES (?, ?, ?, ?, ?, 'pending', NOW())
+            ");
 
-        $ok = $stmt->execute([
-            $this->employee_id,
-            $this->manager_id,
-            $this->start_date,
-            $this->end_date,
-            $this->reason,
-            $this->status,
-        ]);
+            $ok = $stmt->execute([
+                $this->employee_id,
+                $this->manager_id,
+                $this->start_date,
+                $this->end_date,
+                $this->reason,
+            ]);
 
-        if ($ok) {
-            $this->id = (int)$db->lastInsertId();
+            if ($ok) {
+                $this->id = (int)$db->lastInsertId();
+            }
+
+            return $ok;
         }
-
-        return $ok;
     }
 
     /**
@@ -163,11 +180,11 @@ class VacationRequest
     public function getManagerId(): int {
         return $this->manager_id;
     }
-    public function getStartDate(): string {
-        return date_format(date_create($this->start_date),"d/m/Y");
+    public function getStartDate(): ?string {
+        return $this->start_date ?? null;
     }
-    public function getEndDate(): string {
-        return date_format(date_create($this->end_date),"d/m/Y");
+    public function getEndDate(): ?string {
+        return $this->end_date;
     }
     public function getReason(): ?string {
         return $this->reason;

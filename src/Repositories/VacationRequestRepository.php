@@ -83,4 +83,35 @@ class VacationRequestRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? new VacationRequest($row) : null;
     }
+
+    /**
+     * Check if there is a vacation request that overlaps with the new one
+     * @param int $employeeId
+     * @param string $start
+     * @param string $end
+     * @param int|null $excludeId
+     * @return bool
+     */
+    public static function overlaps(int $employeeId, string $start, string $end, ?int $excludeId = null): bool
+    {
+        $sql = "
+            SELECT 1 FROM vacation_requests
+            WHERE employee_id=?
+            AND status IN ('pending','approved')
+            AND NOT (end_date < ? OR start_date > ?)
+        ";
+        $params = [$employeeId, $start, $end];
+
+        if ($excludeId) {
+            $sql .= " AND id<>? ";
+            $params[] = $excludeId;
+        }
+
+        $sql .= " LIMIT 1";
+
+        $stmt = Bootstrap::$db->prepare($sql);
+        $stmt->execute($params);
+        return (bool)$stmt->fetchColumn();
+    }
+
 }
