@@ -70,40 +70,26 @@ class VacationRequest
     {
         $db = Bootstrap::$db;
 
-        if ($this->id) {
-            $stmt = $db->prepare("
-                UPDATE vacation_requests
-                SET start_date=?, end_date=?, reason=?, status=?, processed_at=?
-                WHERE id=? AND employee_id=?
-            ");
-            return $stmt->execute([
-                $this->start_date,
-                $this->end_date,
-                $this->reason,
-                $this->status,
-                $this->processed_at,
-                $this->id,
-                $this->employee_id,
-            ]);
-        } else {
-            $stmt = $db->prepare("
-                INSERT INTO vacation_requests
-                (employee_id, manager_id, start_date, end_date, reason, status, submitted_at)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
-            ");
-            $ok = $stmt->execute([
-                $this->employee_id,
-                $this->manager_id,
-                $this->start_date,
-                $this->end_date,
-                $this->reason,
-                $this->status,
-            ]);
-            if ($ok) {
-                $this->id = (int)$db->lastInsertId();
-            }
-            return $ok;
+        $stmt = $db->prepare("
+            INSERT INTO vacation_requests
+            (employee_id, manager_id, start_date, end_date, reason, status, submitted_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
+        ");
+
+        $ok = $stmt->execute([
+            $this->employee_id,
+            $this->manager_id,
+            $this->start_date,
+            $this->end_date,
+            $this->reason,
+            $this->status,
+        ]);
+
+        if ($ok) {
+            $this->id = (int)$db->lastInsertId();
         }
+
+        return $ok;
     }
 
     /**
