@@ -114,4 +114,41 @@ class VacationRequestRepository
         return (bool)$stmt->fetchColumn();
     }
 
+    /**
+     * Validate vacation request input.
+     *
+     * @param int $employeeId
+     * @param string|null $start
+     * @param string|null $end
+     * @param string|null $reason
+     * @param int|null $ignoreId Optional request id to ignore when checking overlaps (for update)
+     * @return array<string,string> Errors array
+     */
+    public static function validate(
+        int $employeeId,
+        ?string $start,
+        ?string $end,
+        ?string $reason,
+        ?int $ignoreId = null
+    ): array {
+        $errors = [];
+
+        if (!$start) {
+            $errors['start_date'] = 'Start date is required';
+        }
+        if (!$end) {
+            $errors['end_date'] = 'End date is required';
+        }
+        if (!$reason) {
+            $errors['reason'] = 'Reason is required';
+        }
+        if ($start && $end && $end < $start) {
+            $errors['end_date'] = 'End date cannot be earlier than start date';
+        }
+        if ($start && $end && self::overlaps($employeeId, $start, $end, $ignoreId)) {
+            $errors['start_date'] = 'Your vacation request overlaps with an existing one.';
+        }
+
+        return $errors;
+    }
 }

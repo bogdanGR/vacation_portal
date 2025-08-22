@@ -42,22 +42,7 @@ class EmployeeController extends BaseController
         $end = $_POST['end_date'] ?? '';
         $reason = trim($_POST['reason'] ?? '');
 
-        $errors = [];
-        if (!$start) {
-            $errors['start_date'] = 'Start date is required';
-        }
-        if (!$end) {
-            $errors['end_date'] = 'End date is required';
-        }
-        if(!$reason) {
-            $errors['reason'] = 'Reason is required';
-        }
-        if ($start && $end && $end < $start) {
-            $errors['end_date'] = 'End date cannot be earlier than start date';
-        }
-        if ($start && $end && VacationRequestRepository::overlaps($employeeId, $start, $end)) {
-            $errors['start_date'] = 'Your vacation request overlaps with an existing one.';
-        }
+        $errors = VacationRequestRepository::validate($employeeId, $start, $end, $reason);
 
         if ($errors) {
             $this->render('employee/vacation_request/new', [
@@ -116,23 +101,7 @@ class EmployeeController extends BaseController
         $end = (string)($_POST['end_date'] ?? '');
         $reason = trim((string)($_POST['reason'] ?? ''));
 
-        $errors = [];
-        if (!$start) {
-            $errors['start_date'] = 'Start date is required';
-        }
-        if (!$end) {
-            $errors['end_date'] = 'End date is required';
-        }
-        if(!$reason) {
-            $errors['reason'] = 'Reason is required';
-        }
-        if ($start && $end && $end < $start) {
-            $errors['end_date'] = 'End date cannot be earlier than start date';
-        }
-        if ($start && $end && VacationRequestRepository::overlaps($employeeId, $start, $end)) {
-            $errors['start_date'] = 'Your vacation request overlaps with an existing one.';
-        }
-
+        $errors = VacationRequestRepository::validate($employeeId, $start, $end, $reason, $vacationRequest->getId());
 
         if ($errors) {
             $this->render('employee/vacation_request/edit', [
@@ -141,7 +110,8 @@ class EmployeeController extends BaseController
                 'old' => [
                     'start' => $start,
                     'end' => $end,
-                    'reason' => $reason],
+                    'reason' => $reason
+                ],
                 ]);
             return;
         }
