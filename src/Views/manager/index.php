@@ -1,7 +1,16 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 m-0">Manager Dashboard</h1>
-    <a class="btn btn-dark" href="/manager/users/new">+ Create User</a>
+    <h1 class="h4 m-0">
+        Manager Dashboard
+        <?php if (!empty($pendingCount)): ?>
+            <span class="badge bg-danger"><?= $pendingCount ?> pending</span>
+        <?php endif; ?>
+    </h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary" href="/manager/requests">View Requests</a>
+        <a class="btn btn-dark" href="/manager/users/new">+ Create User</a>
+    </div>
 </div>
+
 
 <div class="card">
     <div class="card-body p-0">

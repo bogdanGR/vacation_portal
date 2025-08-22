@@ -35,4 +35,10 @@ $router->get('/employee/requests/new', [EmployeeController::class, 'createReques
 $router->post('/employee/requests/store', [EmployeeController::class, 'storeRequest']);
 $router->post('/employee/requests/{id}/delete', [EmployeeController::class, 'deleteRequest']);
 
+// Manager: view/act on requests
+$router->get('/manager/requests', [ManagerController::class, 'requestsIndex']);
+$router->post('/manager/requests/{id}/approve', [ManagerController::class, 'requestsApprove']);
+$router->post('/manager/requests/{id}/reject', [ManagerController::class, 'requestsReject']);
+
+
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

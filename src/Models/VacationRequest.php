@@ -123,6 +123,51 @@ class VacationRequest
         return $stmt->rowCount() === 1;
     }
 
+    /**
+     * Method to mark as approved the vacation request
+     * @return bool
+     */
+    public function approve(): bool
+    {
+        if ($this->status !== 'pending' || $this->id === null) return false;
+
+        $stmt = Bootstrap::$db->prepare("
+        UPDATE vacation_requests
+        SET status='approved', processed_at = NOW()
+        WHERE id=? AND status='pending'
+    ");
+        $ok = $stmt->execute([$this->id]);
+        if ($ok && $stmt->rowCount() === 1) {
+            $this->status = 'approved';
+            $this->processed_at = date('Y-m-d H:i:s');
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Method to mark as rejected the vacation request
+     * @return bool
+     */
+    public function reject(): bool
+    {
+        if ($this->status !== 'pending' || $this->id === null) return false;
+
+        $stmt = Bootstrap::$db->prepare("
+        UPDATE vacation_requests
+        SET status='rejected', processed_at = NOW()
+        WHERE id=? AND status='pending'
+    ");
+        $ok = $stmt->execute([$this->id]);
+        if ($ok && $stmt->rowCount() === 1) {
+            $this->status = 'rejected';
+            $this->processed_at = date('Y-m-d H:i:s');
+            return true;
+        }
+        return false;
+    }
+
+    // getters
     public function getId(): ?int {
         return $this->id;
     }
@@ -145,12 +190,13 @@ class VacationRequest
         return $this->status;
     }
     public function getSubmittedAt(): ?string {
-        return $this->submitted_at;
+        return date_format(date_create($this->submitted_at),"d/m/Y");
     }
     public function getProcessedAt(): ?string {
-        return $this->processed_at;
+        return date_format(date_create($this->processed_at),"d/m/Y");
     }
 
+    // setters
     public function setId(?int $id): void {
         $this->id = $id;
     }

@@ -32,6 +32,55 @@ class VacationRequestRepository
         $stmt = Bootstrap::$db->prepare("SELECT * FROM vacation_requests WHERE id=? AND employee_id=? LIMIT 1");
         $stmt->execute([$id, $employeeId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? new VacationRequest($row) : null;
+    }
+
+    /**
+     * List requests assigned to a manager (newest first).
+     * @return array<int, array<string,mixed>>
+     */
+    public static function findByManager(int $managerId): array
+    {
+        $stmt = Bootstrap::$db->prepare("
+            SELECT vr.id, vr.employee_id, vr.manager_id,
+            vr.start_date, vr.end_date, vr.reason,
+            vr.status, vr.submitted_at, vr.processed_at,
+            u.name  AS employee_name,
+            u.email AS employee_email
+            FROM vacation_requests vr
+            JOIN users u ON u.id = vr.employee_id
+            WHERE vr.manager_id = ?
+            ORDER BY (vr.status = 'pending') DESC, vr.submitted_at DESC
+        ");
+
+        $stmt->execute([$managerId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Returns count of pending vacation requests of specific manager
+     * @param int $managerId
+     * @return int
+     */
+    public static function countPendingByManager(int $managerId): int
+    {
+        $stmt = Bootstrap::$db->prepare("SELECT COUNT(*) FROM vacation_requests WHERE manager_id=? AND status='pending'");
+        $stmt->execute([$managerId]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    /**
+     * Returns one manager's vacation request
+     * @param int $id
+     * @param int $managerId
+     * @return VacationRequest|null
+     */
+    public static function findOneForManager(int $id, int $managerId): ?VacationRequest
+    {
+        $stmt = Bootstrap::$db->prepare("SELECT * FROM vacation_requests WHERE id=? AND manager_id=? LIMIT 1");
+        $stmt->execute([$id, $managerId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? new VacationRequest($row) : null;
     }
 }

@@ -4,26 +4,58 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use App\Repositories\VacationRequestRepository;
 
 class ManagerController extends BaseController
 {
     /**
      *
+     * home end point of Manager page
      * @return void
      */
     public function home(): void
     {
         $this->requireManager();
+        $managerId = (int)$this->user()['id'];
+
         $users = UserRepository::allEmployees();
-        $this->render('manager/index', ['users' => $users]);
+
+        $this->render('manager/index', [
+            'users' => $users,
+            'pendingCount' => VacationRequestRepository::countPendingByManager($managerId)
+        ]);
     }
 
+    /**
+     * Handles the requests index page
+     * @return void
+     */
+    public function requestsIndex(): void
+    {
+        $this->requireManager();
+        $managerId = (int)$this->user()['id'];
+
+        $requests = VacationRequestRepository::findByManager($managerId);
+
+        $this->render('manager/requests_index', [
+            'requests' => $requests,
+        ]);
+    }
+
+    /**
+     * Render form for new user
+     * @return void
+     */
     public function usersNew(): void
     {
         $this->requireManager();
         $this->render('manager/users_new');
     }
 
+    /**
+     * Handles store of user
+     * @return void
+     */
     public function usersStore(): void
     {
         $this->requireManager();
@@ -223,4 +255,64 @@ class ManagerController extends BaseController
         }
     }
 
+    /**
+     * Handles the approval of the vacation request
+     * @param array $params
+     * @return void
+     */
+    public function requestsApprove(array $params): void
+    {
+        $this->requireManager();
+        $managerId = (int)$this->user()['id'];
+        $id = (int)$params['id'];
+
+        $request = VacationRequestRepository::findOneForManager($id, $managerId);
+
+        if (!$request) {
+            http_response_code(404);
+            echo "Request not found";
+            return;
+        }
+
+        if (!$request->approve()) {
+            $this->render('manager/requests_show', [
+                'error' => 'Unable to approve request.',
+                'request' => $request
+            ]);
+            return;
+        }
+
+        $this->redirect('/manager/requests');
+    }
+
+    /**
+     * Handles the rejection of the vacation request
+     * @param array $params
+     * @return void
+     */
+    public function requestsReject(array $params): void
+    {
+        $this->requireManager();
+        $managerId = (int)$this->user()['id'];
+        $id = (int)$params['id'];
+
+        $request = VacationRequestRepository::findOneForManager($id, $managerId);
+
+        if (!$request) {
+            http_response_code(404);
+            echo "Request not found";
+            return;
+        }
+
+        if (!$request->reject()) {
+            $this->render('manager/requests_index', [
+                'requests' => VacationRequestRepository::findByManager($managerId),
+                'error' => 'Unable to reject (already processed or not yours).'
+            ]);
+
+            return;
+        }
+
+        $this->redirect('/manager/requests');
+    }
 }
