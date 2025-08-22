@@ -31,4 +31,8 @@ $router->get('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']
 $router->post('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']);
 $router->post('/manager/users/{id}/delete', [ManagerController::class, 'usersDelete']);
 
+$router->get('/employee/requests/new', [EmployeeController::class, 'createRequest']);
+$router->post('/employee/requests/store', [EmployeeController::class, 'storeRequest']);
+$router->post('/employee/requests/{id}/delete', [EmployeeController::class, 'deleteRequest']);
+
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

@@ -162,6 +162,7 @@ class User
             'email' => $this->email,
             'employee_code' => $this->employee_code,
             'role' => $this->role,
+            'manager_id' => $this->manager_id
         ];
     }
 
