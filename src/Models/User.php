@@ -375,6 +375,10 @@ class User
      */
     public function setManagerId(?int $managerId): void
     {
-        $this->manager_id = $managerId;
+        if ($managerId === null || $managerId === '' || (int)$managerId <= 0) {
+            $this->manager_id = null;
+        } else {
+            $this->manager_id = (int)$managerId;
+        }
     }
 }

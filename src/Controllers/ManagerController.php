@@ -115,10 +115,11 @@ class ManagerController extends BaseController
         $currentManagerId = $this->user()['id'];
 
         $data = $_POST;
-        if (($data['role'] ?? 'employee') === 'employee') {
+        if (!empty($data['role']) && $data['role'] === 'employee') {
             $data['manager_id'] = $currentManagerId;
         } else {
             $data['manager_id'] = null;
+            $data['employee_code'] = null;
         }
 
         $user = new User($data);
