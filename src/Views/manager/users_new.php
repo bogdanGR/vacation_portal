@@ -1,4 +1,7 @@
-<h1 class="h4 mb-3">Create User</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 m-0">Create User</h1>
+    <a href="/manager" class="btn btn-outline-secondary">← Back to Dashboard</a>
+</div>
 
 <form method="post" action="/manager/users" class="card card-narrow shadow-sm">
     <div class="card-body vstack gap-3">
