@@ -11,14 +11,18 @@ class EmployeeController extends BaseController
     {
         $this->requireLogin();
         $user = $this->user();
+        $status = $_GET['status'] ?? 'pending';
 
         $requests = [];
 
         if (!empty($user)) {
-            $requests = VacationRequestRepository::findByEmployee($user['id']);
+            $requests = VacationRequestRepository::findByEmployee($user['id'], $status);
         }
 
-        $this->render('employee/index', ['requests' => $requests]);
+        $this->render('employee/index', [
+            'requests' => $requests,
+            'status' => $status,
+        ]);
     }
 
     /**

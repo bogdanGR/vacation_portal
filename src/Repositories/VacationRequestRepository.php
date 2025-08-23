@@ -13,11 +13,27 @@ class VacationRequestRepository
      *
      * @return VacationRequest[]
      */
-    public static function findByEmployee(int $employeeId): array
+    public static function findByEmployee(int $employeeId, ?string $status = 'pending'): array
     {
-        $stmt = Bootstrap::$db->prepare("SELECT * FROM vacation_requests WHERE employee_id=? ORDER BY submitted_at DESC");
-        $stmt->execute([$employeeId]);
+        $sql = "SELECT * FROM vacation_requests WHERE employee_id = :employee_id";
+        $params = ['employee_id' => $employeeId];
+
+        if ($status && in_array($status, ['pending','approved','rejected'], true)) {
+            $sql .= " AND status = :status";
+            $params['status'] = $status;
+            $sql .= " ORDER BY submitted_at DESC";
+        } else {
+            $sql .= "
+            ORDER BY 
+                CASE status WHEN 'pending' THEN 0 ELSE 1 END,
+                submitted_at DESC
+        ";
+        }
+
+        $stmt = Bootstrap::$db->prepare($sql);
+        $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return array_map(fn($r) => new VacationRequest($r), $rows);
     }
 
