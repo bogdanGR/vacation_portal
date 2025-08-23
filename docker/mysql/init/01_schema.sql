@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS vacation_portal_db;
+USE vacation_portal_db;
+
 -- USERS
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -31,3 +34,4 @@ CREATE TABLE IF NOT EXISTS vacation_requests (
     INDEX idx_vr_manager  (manager_id),
     INDEX idx_vr_status   (status)
     ) ENGINE=InnoDB;
+

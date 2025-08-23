@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vacation_portal_app
+    depends_on:
+      - db
+    environment:
+      APP_ENV: env
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8080:80"
+    command: bash -lc "composer install && apache2-foreground"
+
+  db:
+    image: mysql:8.0
+    container_name: vacation_portal_db
+    environment:
+      MYSQL_DATABASE: vacation_portal_db
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+    ports:
+      - "3307:3306"  # host:container (optional; use 3307 locally to avoid clashing with a local MySQL)
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: vacation_portal_phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASS}
+    ports:
+      - "3400:80"
+    depends_on:
+      - db
+volumes:
+  db_data:

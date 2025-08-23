@@ -91,10 +91,10 @@ function ensureUser(PDO $db, array $user, ?int $managerId = null): int {
 
 $manager = [
     'name'           => 'Joe Doe Manager',
-    'username'       => 'manager1',
+    'username'       => 'manager',
     'email'          => 'manager@email.gr',
     'role'           => 'manager',
-    'password_plain' => 'password123',
+    'password_plain' => 'password',
     'employee_code'  => null,
 ];
 
@@ -103,8 +103,8 @@ $employee = [
     'username'       => 'bogdan',
     'email'          => 'bogdan@email.gr',
     'role'           => 'employee',
-    'password_plain' => 'password123',
-    'employee_code'  => '1000002',
+    'password_plain' => 'password',
+    'employee_code'  => '1000001',
 ];
 
 try {

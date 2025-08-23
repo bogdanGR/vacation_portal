@@ -2,7 +2,8 @@
   "name": "bogdan/vacation-portal",
   "type": "project",
   "require": {
-    "php": ">=8.1"
+    "php": ">=8.1",
+    "vlucas/phpdotenv": "^5.6"
   },
   "autoload": {
     "psr-4": {
@@ -11,6 +12,11 @@
   },
   "scripts": {
     "start": "php -S 127.0.0.1:8000 -t public",
-    "seed:users": "php scripts/seed_users.php"
+    "seed:users": "php scripts/seed_users.php",
+    "seed:data": "php scripts/seed_data.php",
+    "seed:all": [
+      "@seed:users",
+      "@seed:data"
+    ]
   }
 }
