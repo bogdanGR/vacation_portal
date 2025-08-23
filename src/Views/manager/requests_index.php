@@ -49,10 +49,12 @@
                         <td class="text-end">
                             <?php if ($request['status'] === 'pending'): ?>
                                 <form method="post" action="/manager/requests/<?= (int)$request['id'] ?>/approve" class="d-inline">
+                                    <?php include __DIR__ . '/../partials/csrf.php'; ?>
                                     <button class="btn btn-sm btn-success"
                                             onclick="return confirm('Approve this request?')">Approve</button>
                                 </form>
                                 <form method="post" action="/manager/requests/<?= (int)$request['id'] ?>/reject" class="d-inline">
+                                    <?php include __DIR__ . '/../partials/csrf.php'; ?>
                                     <button class="btn btn-sm btn-outline-danger"
                                             onclick="return confirm('Reject this request?')">Reject</button>
                                 </form>

@@ -62,4 +62,29 @@ class BaseController
         $this->requireLogin();
         if (($this->user()['role'] ?? '') !== 'manager') $this->redirect('/employee');
     }
+
+    /**
+     * Get current CSRF token string.
+     * @return string
+     */
+    protected function getCsrfToken(): string
+    {
+        return $_SESSION['csrf_token'] ?? '';
+    }
+
+    /**
+     * Verify CSRF token for POST actions. Sends 403 & exits on failure.
+     * @return void
+     */
+    protected function verifyCsrf(): void
+    {
+        $token = $_POST['csrf_token'] ?? '';
+        $sessionToken = $_SESSION['csrf_token'] ?? '';
+        if (!$token || !$sessionToken || !hash_equals($sessionToken, $token)) {
+            http_response_code(403);
+            echo 'CSRF validation failed';
+            exit;
+        }
+    }
+
 }

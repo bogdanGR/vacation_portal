@@ -62,6 +62,7 @@ class ManagerController extends BaseController
      */
     public function usersStore(): void
     {
+        $this->verifyCsrf();
         $this->requireManager();
 
         $name = trim($_POST['name'] ?? '');
@@ -172,6 +173,7 @@ class ManagerController extends BaseController
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->verifyCsrf();
             $name = trim($_POST['name'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
@@ -236,6 +238,7 @@ class ManagerController extends BaseController
      */
     public function usersDelete(array $params): void
     {
+        $this->verifyCsrf();
         $this->requireManager();
 
         $userId = (int)$params['id'];
@@ -267,6 +270,7 @@ class ManagerController extends BaseController
      */
     public function requestsApprove(array $params): void
     {
+        $this->verifyCsrf();
         $this->requireManager();
         $managerId = (int)$this->user()['id'];
         $id = (int)$params['id'];
@@ -297,6 +301,7 @@ class ManagerController extends BaseController
      */
     public function requestsReject(array $params): void
     {
+        $this->verifyCsrf();
         $this->requireManager();
         $managerId = (int)$this->user()['id'];
         $id = (int)$params['id'];

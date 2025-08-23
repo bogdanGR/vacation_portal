@@ -38,6 +38,7 @@ class EmployeeController extends BaseController
      */
     public function storeRequest(): void
     {
+        $this->verifyCsrf();
         $employee = $this->user();
         $employeeId = $employee['id'];
         $managerId  = $employee['manager_id'];
@@ -101,6 +102,7 @@ class EmployeeController extends BaseController
             return;
         }
 
+        $this->verifyCsrf();
         $start = (string)($_POST['start_date'] ?? '');
         $end = (string)($_POST['end_date'] ?? '');
         $reason = trim((string)($_POST['reason'] ?? ''));

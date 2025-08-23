@@ -45,6 +45,7 @@
                             <div class="d-flex gap-2">
                                 <a href="/employee/requests/<?= $request->getId() ?>/edit" class="btn btn-sm btn-primary">Edit</a>
                                 <form method="post" action="/employee/requests/<?= (int)$request->getId() ?>/delete" onsubmit="return confirm('Delete this request?')">
+                                    <?php include __DIR__ . '/../partials/csrf.php'; ?>
                                     <button class="btn btn-sm btn-outline-danger">Delete</button>
                                 </form>
                             </div>

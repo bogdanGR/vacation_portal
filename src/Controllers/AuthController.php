@@ -25,6 +25,7 @@ class AuthController extends BaseController
      */
     public function login(): void
     {
+        $this->verifyCsrf();
         $username = trim($_POST['username'] ?? '');
         $password = (string)($_POST['password'] ?? '');
 

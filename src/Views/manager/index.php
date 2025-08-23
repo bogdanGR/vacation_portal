@@ -36,7 +36,8 @@
                             <form method="post"
                                   action="/manager/users/<?= (int)$user->getId(); ?>/delete"
                                   class="d-inline"
-                                  onsubmit="return confirm('Delete user <?= htmlspecialchars($user->getEmail()) ?>? This cannot be undone.');">
+                                  onsubmit="return confirm('Delete user <?= htmlspecialchars($user->getName()) ?>? This cannot be undone.');">
+                                <?php include __DIR__ . '/../partials/csrf.php'; ?>
                                 <button class="btn btn-sm btn-outline-danger">
                                     Delete
                                 </button>

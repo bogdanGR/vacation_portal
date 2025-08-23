@@ -5,6 +5,7 @@
 <?php endif; ?>
 
 <form method="post" action="/manager/users/<?= (int)$user->getId(); ?>/edit" class="card card-body">
+    <?php include __DIR__ . '/../partials/csrf.php'; ?>
     <div class="row g-3">
         <div class="col-md-12">
             <label class="form-label">Name</label>

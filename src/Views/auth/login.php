@@ -9,6 +9,7 @@
                 <?php endif; ?>
 
                 <form method="post" action="/login" class="vstack gap-3">
+                    <?php include __DIR__ . '/../partials/csrf.php'; ?>
                     <div>
                         <label class="form-label">Username</label>
                         <input type="text" name="username" class="form-control" required>

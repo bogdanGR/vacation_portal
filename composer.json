@@ -17,6 +17,10 @@
     "seed:all": [
       "@seed:users",
       "@seed:data"
-    ]
+    ],
+    "test": "php -d variables_order=EGPCS ./vendor/bin/phpunit"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10"
   }
 }

@@ -4,6 +4,7 @@
 </div>
 
 <form method="post" action="/manager/users" class="card card-narrow shadow-sm">
+    <?php include __DIR__ . '/../partials/csrf.php'; ?>
     <div class="card-body vstack gap-3">
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger">
