@@ -40,9 +40,9 @@ class VacationRequestRepository
      * List requests assigned to a manager (newest first).
      * @return array<int, array<string,mixed>>
      */
-    public static function findByManager(int $managerId): array
+    public static function findByManager(int $managerId, ?string $status = 'pending'): array
     {
-        $stmt = Bootstrap::$db->prepare("
+        $sql = "
             SELECT vr.id, vr.employee_id, vr.manager_id,
             vr.start_date, vr.end_date, vr.reason,
             vr.status, vr.submitted_at, vr.processed_at,
@@ -50,11 +50,26 @@ class VacationRequestRepository
             u.email AS employee_email
             FROM vacation_requests vr
             JOIN users u ON u.id = vr.employee_id
-            WHERE vr.manager_id = ?
-            ORDER BY (vr.status = 'pending') DESC, vr.submitted_at DESC
-        ");
+            WHERE vr.manager_id = :manager_id
+        ";
 
-        $stmt->execute([$managerId]);
+        $params = ['manager_id' => $managerId];
+
+        if ($status && in_array($status, ['pending','approved','rejected'], true)) {
+            $sql .= " AND vr.status = :status";
+            $params['status'] = $status;
+            $sql .= " ORDER BY vr.submitted_at DESC";
+        } else {
+            // 'all' or null: pending first, then recent
+            $sql .= "
+            ORDER BY 
+            CASE vr.status WHEN 'pending' THEN 0 ELSE 1 END,
+            vr.submitted_at DESC
+        ";
+        }
+
+        $stmt = Bootstrap::$db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

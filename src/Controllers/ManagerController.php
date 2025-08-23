@@ -33,12 +33,14 @@ class ManagerController extends BaseController
     public function requestsIndex(): void
     {
         $this->requireManager();
+        $status = $_GET['status'] ?? 'pending';
         $managerId = (int)$this->user()['id'];
 
-        $requests = VacationRequestRepository::findByManager($managerId);
+        $requests = VacationRequestRepository::findByManager($managerId, $status);
 
         $this->render('manager/requests_index', [
             'requests' => $requests,
+            'status'   => $status,
         ]);
     }
 

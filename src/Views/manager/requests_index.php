@@ -1,5 +1,15 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 m-0">Vacation Requests</h1>
+    <div>
+        <a href="/manager/requests?status=all"
+           class="btn btn-sm <?= $status==='all' ? 'btn-primary' : 'btn-outline-primary' ?>">All</a>
+        <a href="/manager/requests?status=pending"
+           class="btn btn-sm <?= $status==='pending' ? 'btn-primary' : 'btn-outline-primary' ?>">Pending</a>
+        <a href="/manager/requests?status=approved"
+           class="btn btn-sm <?= $status==='approved' ? 'btn-primary' : 'btn-outline-primary' ?>">Approved</a>
+        <a href="/manager/requests?status=rejected"
+           class="btn btn-sm <?= $status==='rejected' ? 'btn-primary' : 'btn-outline-primary' ?>">Rejected</a>
+    </div>
     <a href="/manager" class="btn btn-outline-secondary">← Back to Dashboard</a>
 </div>
 
