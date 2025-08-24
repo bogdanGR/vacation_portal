@@ -21,7 +21,7 @@ class UsersController extends BaseController
             $requests = VacationRequestRepository::findByEmployee($user['id'], $status);
         }
 
-        $this->render('employee/index', [
+        $this->render('users/employee_index', [
             'requests' => $requests,
             'status' => $status,
         ]);
@@ -39,7 +39,7 @@ class UsersController extends BaseController
 
         $users = UserRepository::allEmployees();
 
-        $this->render('manager/index', [
+        $this->render('users/manager_index', [
             'users' => $users,
             'pendingCount' => VacationRequestRepository::countPendingByManager($managerId)
         ]);
@@ -52,7 +52,7 @@ class UsersController extends BaseController
     public function create(): void
     {
         $this->requireManager();
-        $this->render('manager/users_new', [
+        $this->render('users/create', [
             'prefill_employee_code' => UserRepository::generateNextEmployeeCode()
         ]);
     }
@@ -101,7 +101,7 @@ class UsersController extends BaseController
         if ($user->save()) {
             $this->redirect('/manager');
         } else {
-            $this->render('manager/users_new', [
+            $this->render('users/create', [
                 'errors' => ['general' => 'Failed to save user. Please try again.'],
                 'old' => [
                     'name' => $name,
@@ -156,7 +156,7 @@ class UsersController extends BaseController
             $errors = UserRepository::validateUserData($_POST, $id, true);
 
             if ($errors) {
-                $this->render('manager/users_edit', [
+                $this->render('users/edit', [
                     'user' => $user,
                     'errors' => $errors,
                     'old' => [
@@ -189,7 +189,7 @@ class UsersController extends BaseController
                 ]);
             }
         } else {
-            $this->render('manager/users_edit', [
+            $this->render('users/edit', [
                 'user' => $user,
                 'errors' => [],
                 'old' => []
@@ -223,7 +223,7 @@ class UsersController extends BaseController
         $user = UserRepository::findById($userId);
 
         if (!$user) {
-            $this->render('manager/index', [
+            $this->render('users/manager_index', [
                 'errors' => ['general' => 'User not found'],
                 'users'  => UserRepository::allEmployees()
             ]);
@@ -233,7 +233,7 @@ class UsersController extends BaseController
         if ($user->delete()) {
             $this->redirect('/manager');
         } else {
-            $this->render('manager/index', [
+            $this->render('users/manager_index', [
                 'errors' => ['general' => 'Failed to delete user'],
                 'users'  => UserRepository::allEmployees()
             ]);

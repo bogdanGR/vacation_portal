@@ -19,19 +19,18 @@ class VacationRequestsController extends BaseController
 
         $requests = VacationRequestRepository::findByManager($managerId, $status);
 
-        $this->render('manager/requests_index', [
+        $this->render('vacation_requests/index', [
             'requests' => $requests,
             'status'   => $status,
         ]);
     }
-
 
     /**
      * Show form for creating a new vacation request.
      */
     public function create(): void
     {
-        $this->render('employee/vacation_request/new');
+        $this->render('vacation_requests/create');
     }
 
     /**
@@ -51,7 +50,7 @@ class VacationRequestsController extends BaseController
         $errors = VacationRequestRepository::validate($employeeId, $start, $end, $reason);
 
         if ($errors) {
-            $this->render('employee/vacation_request/new', [
+            $this->render('vacation_requests/create', [
                 'errors' => $errors,
                 'old' => [
                     'start_date' => $start,
@@ -73,7 +72,7 @@ class VacationRequestsController extends BaseController
         if ($request->save()) {
             $this->redirect('/employee');
         } else {
-            $this->render('employee/vacation_request/new', [
+            $this->render('vacation_requests/create', [
                 'errors' => ['general' => 'Something went wrong'],
                 'old' => compact('start','end','reason')
             ]);
@@ -99,7 +98,7 @@ class VacationRequestsController extends BaseController
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $this->render('employee/vacation_request/edit', ['request' => $vacationRequest, 'errors' => [], 'old' => []]);
+            $this->render('vacation_requests/edit', ['request' => $vacationRequest, 'errors' => [], 'old' => []]);
             return;
         }
 
@@ -111,7 +110,7 @@ class VacationRequestsController extends BaseController
         $errors = VacationRequestRepository::validate($employeeId, $start, $end, $reason, $vacationRequest->getId());
 
         if ($errors) {
-            $this->render('employee/vacation_request/edit', [
+            $this->render('vacation_requests/edit', [
                 'request' => $vacationRequest,
                 'errors' => $errors,
                 'old' => [
@@ -130,7 +129,7 @@ class VacationRequestsController extends BaseController
         if ($vacationRequest->save()) {
             $this->redirect('/employee');
         } else {
-            $this->render('employee/vacation_request/edit', [
+            $this->render('vacation_requests/edit', [
                 'request' => $vacationRequest,
                 'errors' => ['general' => 'Unable to update request.'],
                 'old' => [
@@ -164,7 +163,7 @@ class VacationRequestsController extends BaseController
             return;
         }
 
-        $this->render('employee/vacations_index', [
+        $this->render('users/employee_index', [
             'error'    => 'Unable to delete request.',
             'requests' => VacationRequestRepository::findByEmployee($employeeId),
         ]);
@@ -214,7 +213,7 @@ class VacationRequestsController extends BaseController
         $success = $action === 'approve' ? $request->approve() : $request->reject();
 
         if (!$success) {
-            $this->render('manager/requests_index', [
+            $this->render('vacation_requests/index', [
                 'requests' => VacationRequestRepository::findByManager($managerId),
                 'error' => 'Unable to update Vacation request'
             ]);

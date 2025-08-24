@@ -9,7 +9,7 @@
 <?php endif; ?>
 
 <form method="post" action="<?= htmlspecialchars($action) ?>" class="card card-body">
-    <?php include __DIR__ . '/../../partials/csrf.php'; ?>
+    <?php include __DIR__ . '/../partials/csrf.php'; ?>
     <div class="row g-3">
         <div class="col-md-6">
             <label class="form-label">Start Date</label>
