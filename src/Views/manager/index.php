@@ -12,6 +12,7 @@
 </div>
 
 
+<h2>Users</h2>
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
