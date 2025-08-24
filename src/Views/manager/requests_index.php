@@ -38,13 +38,13 @@
                             <div class="fw-medium"><?= htmlspecialchars($request['employee_name']) ?></div>
                             <div class="text-muted small"><?= htmlspecialchars($request['employee_email']) ?></div>
                         </td>
-                        <td><?= htmlspecialchars($request['submitted_at']) ?></td>
-                        <td><?= htmlspecialchars($request['start_date']) ?> → <?= htmlspecialchars($request['end_date']) ?></td>
+                        <td><?= date_format(date_create($request['submitted_at']),"d/m/Y") ?></td>
+                        <td><?= date_format(date_create($request['start_date']),"d/m/Y") ?> → <?= date_format(date_create($request['end_date']),"d/m/Y") ?></td>
                         <td><?= nl2br(htmlspecialchars($request['reason'] ?? '')) ?></td>
                         <td>
-              <span class="badge bg-<?= $request['status']==='approved'?'success':($request['status']==='rejected'?'danger':'secondary') ?>">
-                <?= htmlspecialchars($request['status']) ?>
-              </span>
+                        <span class="badge bg-<?= $request['status']==='approved'?'success':($request['status']==='rejected'?'danger':'secondary') ?>">
+                            <?= htmlspecialchars($request['status']) ?>
+                        </span>
                         </td>
                         <td class="text-end">
                             <?php if ($request['status'] === 'pending'): ?>

@@ -33,7 +33,7 @@
             <?php foreach ($requests as $request): ?>
                 <tr>
                     <td><?= htmlspecialchars($request->getSubmittedAt()) ?></td>
-                    <td><?= htmlspecialchars($request->getStartDate()) ?> → <?= htmlspecialchars($request->getEndDate()) ?></td>
+                    <td><?= date_format(date_create($request->getStartDate()),"d/m/Y") ?> → <?= date_format(date_create($request->getEndDate()),"d/m/Y") ?></td>
                     <td><?= htmlspecialchars($request->getReason()) ?></td>
                     <td>
                         <span class="badge bg-<?= $request->getStatus() === 'approved' ? 'success' : ($request->getStatus() === 'rejected' ? 'danger':'secondary') ?>">
