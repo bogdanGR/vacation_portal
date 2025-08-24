@@ -177,28 +177,7 @@ class VacationRequestsController extends BaseController
      */
     public function approve(array $params): void
     {
-        $this->verifyCsrf();
-        $this->requireManager();
-        $managerId = (int)$this->user()['id'];
-        $id = (int)$params['id'];
-
-        $request = VacationRequestRepository::findOneForManager($id, $managerId);
-
-        if (!$request) {
-            http_response_code(404);
-            echo "Request not found";
-            return;
-        }
-
-        if (!$request->approve()) {
-            $this->render('manager/requests_show', [
-                'error' => 'Unable to approve request.',
-                'request' => $request
-            ]);
-            return;
-        }
-
-        $this->redirect('/manager/requests');
+        $this->processRequestStatusChange($params, 'approve');
     }
 
     /**
@@ -207,6 +186,17 @@ class VacationRequestsController extends BaseController
      * @return void
      */
     public function reject(array $params): void
+    {
+        $this->processRequestStatusChange($params, 'reject');
+    }
+
+    /**
+     * Common logic for approving/rejecting vacation requests
+     * @param array $params
+     * @param string $action 'approve'|'reject'
+     * @return void
+     */
+    private function processRequestStatusChange(array $params, string $action): void
     {
         $this->verifyCsrf();
         $this->requireManager();
@@ -221,12 +211,13 @@ class VacationRequestsController extends BaseController
             return;
         }
 
-        if (!$request->reject()) {
+        $success = $action === 'approve' ? $request->approve() : $request->reject();
+
+        if (!$success) {
             $this->render('manager/requests_index', [
                 'requests' => VacationRequestRepository::findByManager($managerId),
-                'error' => 'Unable to reject (already processed or not yours).'
+                'error' => 'Unable to update Vacation request'
             ]);
-
             return;
         }
 
