@@ -14,6 +14,12 @@
         </div>
 
         <div class="col-md-12">
+            <label class="form-label">Username</label>
+            <input name="username" class="form-control" value="<?= htmlspecialchars($old['username'] ?? $user->getUsername()) ?>">
+            <?php if (!empty($errors['username'])): ?><div class="text-danger small"><?= htmlspecialchars($errors['username']) ?></div><?php endif; ?>
+        </div>
+
+        <div class="col-md-12">
             <label class="form-label">Email</label>
             <input name="email" class="form-control" value="<?= htmlspecialchars($old['email'] ?? $user->getEmail()) ?>">
             <?php if (!empty($errors['email'])): ?><div class="text-danger small"><?= htmlspecialchars($errors['email']) ?></div><?php endif; ?>

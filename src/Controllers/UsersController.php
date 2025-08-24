@@ -109,11 +109,15 @@ class UsersController extends BaseController
         if ($employee_code && UserRepository::existsByEmployeeCode($employee_code)) {
             $errors['employee_code'] = 'Employee code already in use';
         }
-
         if ($errors) {
             $this->render('manager/users_new', [
                 'errors' => $errors,
-                'old' => compact('name','username','email','employee_code','role')
+                'old' => [
+                    'name' => $name,
+                    'username' => $username,
+                    'email' => $email,
+                    'employee_code' => $employee_code
+                ]
             ]);
             return;
         }
@@ -135,7 +139,12 @@ class UsersController extends BaseController
         } else {
             $this->render('manager/users_new', [
                 'errors' => ['general' => 'Failed to save user. Please try again.'],
-                'old'    => $_POST
+                'old' => [
+                    'name' => $name,
+                    'username' => $username,
+                    'email' => $email,
+                    'employee_code' => $employee_code
+                ]
             ]);
         }
     }
@@ -176,6 +185,7 @@ class UsersController extends BaseController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->verifyCsrf();
             $name = trim($_POST['name'] ?? '');
+            $username = trim($_POST['username'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
@@ -184,20 +194,34 @@ class UsersController extends BaseController
             if ($name === '') {
                 $errors['name'] = 'Name is required';
             }
+            if ($username === '') {
+                $errors['username'] = 'Username is required';
+            }
             if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = 'Valid email required';
+            }
+            if (UserRepository::existsByUsername($username)) {
+                $errors['username'] = 'Username already taken';
+            }
+            if (UserRepository::existsByEmail($email, $id))       {
+                $errors['email'] = 'Email already in use';
             }
 
             if ($errors) {
                 $this->render('manager/users_edit', [
                     'user' => $user,
                     'errors' => $errors,
-                    'old' => compact('name','email')
+                    'old' => [
+                        'name' => $name,
+                        'username' => $username,
+                        'email' => $email,
+                    ]
                 ]);
                 return;
             }
 
             $user->setName($name);
+            $user->setUsername($username);
             $user->setEmail($email);
             if ($password !== '') {
                 $user->setPasswordPlain($password);
@@ -209,7 +233,11 @@ class UsersController extends BaseController
                 $this->render('manager/users_edit', [
                     'user' => $user,
                     'errors' => ['general' => 'Failed to update user. Please try again.'],
-                    'old' => compact('name','email')
+                    'old' => [
+                        'name' => $name,
+                        'username' => $username,
+                        'email' => $email,
+                    ]
                 ]);
             }
         } else {
