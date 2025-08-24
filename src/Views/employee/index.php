@@ -36,9 +36,9 @@
                     <td><?= htmlspecialchars($request->getStartDate()) ?> → <?= htmlspecialchars($request->getEndDate()) ?></td>
                     <td><?= htmlspecialchars($request->getReason()) ?></td>
                     <td>
-                            <span class="badge bg-<?= $request->getStatus() === 'approved' ? 'success' : ($request->getStatus() === 'rejected' ? 'danger':'secondary') ?>">
-                                <?= htmlspecialchars($request->getStatus()) ?>
-                            </span>
+                        <span class="badge bg-<?= $request->getStatus() === 'approved' ? 'success' : ($request->getStatus() === 'rejected' ? 'danger':'secondary') ?>">
+                            <?= htmlspecialchars($request->getStatus()) ?>
+                        </span>
                     </td>
                     <td>
                         <?php if ($request->getStatus() === 'pending'): ?>
