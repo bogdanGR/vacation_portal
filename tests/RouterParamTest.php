@@ -10,7 +10,6 @@ final class RouterParamTest extends TestCase
     {
         $router = new Router();
 
-        // Dummy controller we can assert against
         $called = new class {
             public static array $lastParams = [];
             public function edit(array $params): void {

@@ -26,7 +26,7 @@ final class UserModelTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $u = new User();
-        $u->setRole('boss'); // not allowed
+        $u->setRole('boss');
     }
 
     public function testToSessionStripsSensitiveFields(): void
