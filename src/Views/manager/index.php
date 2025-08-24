@@ -20,6 +20,7 @@
                 <thead class="table-light">
                 <tr>
                     <th>Name</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th></th>
                 </tr>
@@ -28,6 +29,7 @@
                 <?php foreach ($users as $user): ?>
                     <tr>
                         <td><?= htmlspecialchars($user->getName()) ?></td>
+                        <td><?= htmlspecialchars($user->getUsername()) ?></td>
                         <td><?= htmlspecialchars($user->getEmail()) ?></td>
                         <td class="text-nowrap">
                             <a href="/manager/users/<?= (int)$user->getId(); ?>/edit" class="btn btn-sm btn-primary">
