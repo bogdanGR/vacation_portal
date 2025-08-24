@@ -17,20 +17,18 @@ Stack: **PHP 8.2, Apache, MySQL 8, Docker, PHPUnit, Bootstrap**.
 
 ```bash
 git clone git@github.com:bogdanGR/vacation_portal.git
+OR git clone https://github.com/bogdanGR/vacation_portal.git #(if you do not have  ssh) 
 cd vacation_portal
 ```
 ---
 ## 2. Build
 ```bash
 docker compose up --build
-
-# or detach so you can run other commands:
-docker compose up -d --build
 ```
 ---
 ##  3. Seed data
 ```bash
-# open new terminal window in root project if you ran docker compose without flag -d
+# open new terminal window in project's root and run
 docker compose exec app composer seed:all
 ```
 
