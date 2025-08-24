@@ -5,8 +5,8 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Core\Bootstrap;
 use App\Core\Router;
 use App\Controllers\AuthController;
-use App\Controllers\ManagerController;
-use App\Controllers\EmployeeController;
+use App\Controllers\UsersController;
+use App\Controllers\VacationRequestsController;
 
 Bootstrap::init();
 
@@ -19,28 +19,28 @@ $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 
 /** Dashboards */
-$router->get('/manager', [ManagerController::class, 'home']);
-$router->get('/employee', [EmployeeController::class, 'home']);
+$router->get('/manager', [UsersController::class, 'managerIndex']);
+$router->get('/employee', [UsersController::class, 'employeeIndex']);
 
 /** Manager: Registration (create user) */
-$router->get('/manager/users/new',  [ManagerController::class, 'usersNew']);
-$router->post('/manager/users',     [ManagerController::class, 'usersStore']);
+$router->get('/manager/users/new',  [UsersController::class, 'create']);
+$router->post('/manager/users',     [UsersController::class, 'store']);
 
 /** Manager edit, update and delete user */
-$router->get('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']);
-$router->post('/manager/users/{id}/edit', [ManagerController::class, 'usersEdit']);
-$router->post('/manager/users/{id}/delete', [ManagerController::class, 'usersDelete']);
+$router->get('/manager/users/{id}/edit', [UsersController::class, 'edit']);
+$router->post('/manager/users/{id}/edit', [UsersController::class, 'edit']);
+$router->post('/manager/users/{id}/delete', [UsersController::class, 'delete']);
 
 /** Requests new/store/delete and edit*/
-$router->get('/employee/requests/new', [EmployeeController::class, 'createRequest']);
-$router->post('/employee/requests/store', [EmployeeController::class, 'storeRequest']);
-$router->post('/employee/requests/{id}/delete', [EmployeeController::class, 'deleteRequest']);
-$router->get('/employee/requests/{id}/edit',  [App\Controllers\EmployeeController::class, 'editRequest']);
-$router->post('/employee/requests/{id}/edit', [App\Controllers\EmployeeController::class, 'editRequest']);
+$router->get('/employee/requests/new', [VacationRequestsController::class, 'create']);
+$router->post('/employee/requests/store', [VacationRequestsController::class, 'store']);
+$router->post('/employee/requests/{id}/delete', [VacationRequestsController::class, 'delete']);
+$router->get('/employee/requests/{id}/edit',  [VacationRequestsController::class, 'edit']);
+$router->post('/employee/requests/{id}/edit', [VacationRequestsController::class, 'edit']);
 
 /** managers request index, approve/reject requests */
-$router->get('/manager/requests', [ManagerController::class, 'requestsIndex']);
-$router->post('/manager/requests/{id}/approve', [ManagerController::class, 'requestsApprove']);
-$router->post('/manager/requests/{id}/reject', [ManagerController::class, 'requestsReject']);
+$router->get('/manager/requests', [VacationRequestsController::class, 'index']);
+$router->post('/manager/requests/{id}/approve', [VacationRequestsController::class, 'approve']);
+$router->post('/manager/requests/{id}/reject', [VacationRequestsController::class, 'reject']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

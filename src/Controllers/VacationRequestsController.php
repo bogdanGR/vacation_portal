@@ -5,30 +5,31 @@ use App\Core\BaseController;
 use App\Models\VacationRequest;
 use App\Repositories\VacationRequestRepository;
 
-class EmployeeController extends BaseController
+class VacationRequestsController extends BaseController
 {
-    public function home(): void
+    /**
+     * Handles the requests index page
+     * @return void
+     */
+    public function index(): void
     {
-        $this->requireLogin();
-        $user = $this->user();
+        $this->requireManager();
         $status = $_GET['status'] ?? 'pending';
+        $managerId = (int)$this->user()['id'];
 
-        $requests = [];
+        $requests = VacationRequestRepository::findByManager($managerId, $status);
 
-        if (!empty($user)) {
-            $requests = VacationRequestRepository::findByEmployee($user['id'], $status);
-        }
-
-        $this->render('employee/index', [
+        $this->render('manager/requests_index', [
             'requests' => $requests,
-            'status' => $status,
+            'status'   => $status,
         ]);
     }
+
 
     /**
      * Show form for creating a new vacation request.
      */
-    public function createRequest(): void
+    public function create(): void
     {
         $this->render('employee/vacation_request/new');
     }
@@ -36,7 +37,7 @@ class EmployeeController extends BaseController
     /**
      * Store new vacation request in DB.
      */
-    public function storeRequest(): void
+    public function store(): void
     {
         $this->verifyCsrf();
         $employee = $this->user();
@@ -84,7 +85,7 @@ class EmployeeController extends BaseController
      * @param array $params
      * @return void
      */
-    public function editRequest(array $params): void
+    public function edit(array $params): void
     {
         $employeeId = (int)$this->user()['id'];
         $id = (int)$params['id'];
@@ -118,7 +119,7 @@ class EmployeeController extends BaseController
                     'end' => $end,
                     'reason' => $reason
                 ],
-                ]);
+            ]);
             return;
         }
 
@@ -145,7 +146,7 @@ class EmployeeController extends BaseController
      * Delete a vacation request if it's pending.
      * @param array{id:int} $params
      */
-    public function deleteRequest(array $params): void
+    public function delete(array $params): void
     {
         $employeeId = (int)$this->user()['id'];
         $requestId  = (int)$params['id'];
@@ -167,5 +168,68 @@ class EmployeeController extends BaseController
             'error'    => 'Unable to delete request.',
             'requests' => VacationRequestRepository::findByEmployee($employeeId),
         ]);
+    }
+
+    /**
+     * Handles the approval of the vacation request
+     * @param array $params
+     * @return void
+     */
+    public function approve(array $params): void
+    {
+        $this->verifyCsrf();
+        $this->requireManager();
+        $managerId = (int)$this->user()['id'];
+        $id = (int)$params['id'];
+
+        $request = VacationRequestRepository::findOneForManager($id, $managerId);
+
+        if (!$request) {
+            http_response_code(404);
+            echo "Request not found";
+            return;
+        }
+
+        if (!$request->approve()) {
+            $this->render('manager/requests_show', [
+                'error' => 'Unable to approve request.',
+                'request' => $request
+            ]);
+            return;
+        }
+
+        $this->redirect('/manager/requests');
+    }
+
+    /**
+     * Handles the rejection of the vacation request
+     * @param array $params
+     * @return void
+     */
+    public function reject(array $params): void
+    {
+        $this->verifyCsrf();
+        $this->requireManager();
+        $managerId = (int)$this->user()['id'];
+        $id = (int)$params['id'];
+
+        $request = VacationRequestRepository::findOneForManager($id, $managerId);
+
+        if (!$request) {
+            http_response_code(404);
+            echo "Request not found";
+            return;
+        }
+
+        if (!$request->reject()) {
+            $this->render('manager/requests_index', [
+                'requests' => VacationRequestRepository::findByManager($managerId),
+                'error' => 'Unable to reject (already processed or not yours).'
+            ]);
+
+            return;
+        }
+
+        $this->redirect('/manager/requests');
     }
 }
