@@ -24,7 +24,7 @@ function getUserIdByEmail(PDO $db, string $email): ?int {
  *
  * @return int request id
  */
-function ensureVacationRequest(
+function createVacationRequest(
     PDO $db,
     int $employeeId,
     int $managerId,
@@ -33,7 +33,7 @@ function ensureVacationRequest(
     string $reason,
     string $status
 ): int {
-    // Is there already a request for this exact range?
+    // check if is there already a request for this exact range?
     $sel = $db->prepare('
         SELECT id FROM vacation_requests
         WHERE employee_id=? AND manager_id=? AND start_date=? AND end_date=?
@@ -84,41 +84,38 @@ $managerId  = getUserIdByEmail($db, $managerEmail);
 $employeeId = getUserIdByEmail($db, $employeeEmail);
 
 if (!$managerId || !$employeeId) {
-    fwrite(STDERR, "Manager/Employee not found. Run your users seeder first (composer seed:users) or adjust emails.\n");
+    fwrite(STDERR, "Manager/Employee not found. Run your users seeder first (docker compose exec app composer seed:users) or adjust emails.\n");
     exit(1);
 }
 
 // ---- Create a few example requests ----
-// 1) Pending (future)
-ensureVacationRequest(
+createVacationRequest(
     $db,
     $employeeId,
     $managerId,
     dayOffset(+14),  // start in 2 weeks
     dayOffset(+18),  // 5 days
-    'Family trip (pending)',
+    'Family trip',
     'pending'
 );
 
-// 2) Approved (past)
-ensureVacationRequest(
+createVacationRequest(
     $db,
     $employeeId,
     $managerId,
     dayOffset(-30),  // last month
     dayOffset(-27),
-    'Doctor appointment (approved)',
+    'Doctor appointment',
     'approved'
 );
 
-// 3) Rejected (past different range)
-ensureVacationRequest(
+createVacationRequest(
     $db,
     $employeeId,
     $managerId,
     dayOffset(-10),
     dayOffset(-8),
-    'Short getaway (rejected)',
+    'Short getaway',
     'rejected'
 );
 

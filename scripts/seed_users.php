@@ -9,8 +9,12 @@ $db = Bootstrap::$db;
 
 /**
  * Find a unique username (append -1, -2 if needed).
+ * @param PDO $db
+ * @param string $base
+ * @param int|null $excludeId
+ * @return string
  */
-function ensureUniqueUsername(PDO $db, string $base, ?int $excludeId = null): string {
+function isUsernameUnique(PDO $db, string $base, ?int $excludeId = null): string {
     $base = strtolower(preg_replace('/[^a-z0-9_\.\-]/i', '', $base));
     if ($base === '') $base = 'user';
 
@@ -35,8 +39,12 @@ function ensureUniqueUsername(PDO $db, string $base, ?int $excludeId = null): st
 
 /**
  * Create or update a user by email. Returns the user id.
+ * @param PDO $db
+ * @param array $user
+ * @param int|null $managerId
+ * @return int
  */
-function ensureUser(PDO $db, array $user, ?int $managerId = null): int {
+function createUser(PDO $db, array $user, ?int $managerId = null): int {
     $name = trim($user['name'] ?? '');
     $email = trim($user['email'] ?? '');
     $role = trim($user['role'] ?? 'employee'); // 'manager' | 'employee'
@@ -58,8 +66,8 @@ function ensureUser(PDO $db, array $user, ?int $managerId = null): int {
 
     if ($existingId) {
         $usernameToUse = $username !== ''
-            ? ensureUniqueUsername($db, $username, (int)$existingId)
-            : ($currentUsername ?: ensureUniqueUsername($db, explode('@', $email, 2)[0], (int)$existingId));
+            ? isUsernameUnique($db, $username, (int)$existingId)
+            : ($currentUsername ?: isUsernameUnique($db, explode('@', $email, 2)[0], (int)$existingId));
 
         $upd = $db->prepare('
             UPDATE users
@@ -72,9 +80,9 @@ function ensureUser(PDO $db, array $user, ?int $managerId = null): int {
     }
 
     if ($username === '') {
-        $username = ensureUniqueUsername($db, explode('@', $email, 2)[0]);
+        $username = isUsernameUnique($db, explode('@', $email, 2)[0]);
     } else {
-        $username = ensureUniqueUsername($db, $username);
+        $username = isUsernameUnique($db, $username);
     }
 
     $ins = $db->prepare('
@@ -110,8 +118,8 @@ $employee = [
 try {
     $db->beginTransaction();
 
-    $managerId  = ensureUser($db, $manager, null);
-    $employeeId = ensureUser($db, $employee, $managerId);
+    $managerId  = createUser($db, $manager, null);
+    $employeeId = createUser($db, $employee, $managerId);
 
     $db->commit();
     echo "Seeding complete.\n";
