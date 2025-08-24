@@ -148,4 +148,75 @@ class UserRepository
 
         return str_pad((string)$nextNumber, 7, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Validate user data for create/update operations
+     *
+     * @param array $data The user data to validate
+     * @param int|null $excludeUserId User ID to exclude from uniqueness checks (for updates)
+     * @param bool $isUpdate Whether this is an update operation (skips some validations)
+     * @return array Array of validation errors (empty if valid)
+     */
+    public static function validateUserData(array $data, ?int $excludeUserId = null, bool $isUpdate = false): array
+    {
+        $errors = [];
+
+        // Extract and sanitize data
+        $name = trim($data['name'] ?? '');
+        $username = trim($data['username'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = (string)($data['password'] ?? '');
+        $role = $data['role'] ?? 'employee';
+        $employee_code = $data['employee_code'] ?? null;
+
+        // Required field validations
+        if ($name === '') {
+            $errors['name'] = 'Name is required';
+        }
+
+        if ($username === '') {
+            $errors['username'] = 'Username is required';
+        }
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Valid email required';
+        }
+
+        // Role validation
+        if ($role !== 'employee' && $role !== 'manager') {
+            $errors['role'] = 'Invalid role';
+        }
+
+        // Employee code validation (only for employees)
+        if (!$isUpdate && $role === 'employee') {
+            if (!preg_match('/^\d{7}$/', (string)$employee_code)) {
+                $errors['employee_code'] = 'Employee code must be exactly 7 digits';
+            }
+        }
+
+        // Password validation (skip if empty for updates)
+        if ($password !== '' && strlen($password) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters';
+        }
+
+        // For new users, password is required
+        if ($excludeUserId === null && strlen($password) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters';
+        }
+
+        // Uniqueness validations
+        if (self::existsByUsername($username, $excludeUserId)) {
+            $errors['username'] = 'Username already taken';
+        }
+
+        if (self::existsByEmail($email, $excludeUserId)) {
+            $errors['email'] = 'Email already in use';
+        }
+
+        if ($employee_code && self::existsByEmployeeCode($employee_code, $excludeUserId)) {
+            $errors['employee_code'] = 'Employee code already in use';
+        }
+
+        return $errors;
+    }
 }

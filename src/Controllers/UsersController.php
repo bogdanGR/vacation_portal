@@ -70,45 +70,9 @@ class UsersController extends BaseController
         $username = trim($_POST['username'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $employee_code = $_POST['employee_code'] ?? null;
-        $password = (string)($_POST['password'] ?? '');
-        $role = $_POST['role'] ?? 'employee';
 
-        $errors = [];
+        $errors = UserRepository::validateUserData($_POST);;
 
-        if ($name === '') {
-            $errors['name'] = 'Name is required';
-        }
-        if ($username === '')           {
-            $errors['username'] = 'Username is required';
-        }
-        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Valid email required';
-        }
-        if ($role !== 'employee' && $role !== 'manager') {
-            $errors['role'] = 'Invalid role';
-        }
-
-        if ($role === 'employee') {
-            if (!preg_match('/^\d{7}$/', (string)$employee_code)) {
-                $errors['employee_code'] = 'Employee code must be exactly 7 digits';
-            }
-        } else {
-            $employee_code = null;
-        }
-
-        if (strlen($password) < 6) {
-            $errors['password'] = 'Password must be at least 6 characters';
-        }
-
-        if (UserRepository::existsByUsername($username)) {
-            $errors['username'] = 'Username already taken';
-        }
-        if (UserRepository::existsByEmail($email))       {
-            $errors['email'] = 'Email already in use';
-        }
-        if ($employee_code && UserRepository::existsByEmployeeCode($employee_code)) {
-            $errors['employee_code'] = 'Employee code already in use';
-        }
         if ($errors) {
             $this->render('manager/users_new', [
                 'errors' => $errors,
@@ -189,23 +153,7 @@ class UsersController extends BaseController
             $email = trim($_POST['email'] ?? '');
             $password = trim($_POST['password'] ?? '');
 
-            $errors = [];
-
-            if ($name === '') {
-                $errors['name'] = 'Name is required';
-            }
-            if ($username === '') {
-                $errors['username'] = 'Username is required';
-            }
-            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = 'Valid email required';
-            }
-            if (UserRepository::existsByUsername($username)) {
-                $errors['username'] = 'Username already taken';
-            }
-            if (UserRepository::existsByEmail($email, $id))       {
-                $errors['email'] = 'Email already in use';
-            }
+            $errors = UserRepository::validateUserData($_POST, $id, true);
 
             if ($errors) {
                 $this->render('manager/users_edit', [
